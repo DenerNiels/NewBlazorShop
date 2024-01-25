@@ -1,9 +1,24 @@
 ﻿@page "/categories/create"
-@using NewBlazorShop.Models
+@inject ApplicationDbContext Context
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+@* @attribute [Authorize] *@
 
 <h1>Nova categoria</h1>
-<EditForm Model="@Model">
-    <InputText @bind-Value="Model.Title"/>
+<EditForm Model="@Model" OnValidSubmit="OnValidSubmitAsync">
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
+    
+    <div class="mb-3">
+    <label class="form-label">Nome da categoria</label>
+    <InputText @bind-Value="Model.Title" class="form-control"/>
+    <ValidationMessage For=@(() => Model.Title)/>
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        Criar
+    </button>
+    <a href="/categories">Cancelar</a>
 </EditForm>
     
 @code {
@@ -11,6 +26,13 @@
 
     protected override void OnInitialized()
     {
-        Model.Title = "Minha incrivel categoria";
+
+    }
+
+    public async Task OnValidSubmitAsync()
+    {
+        await Context.Categories.AddAsync(Model);
+        await Context.SaveChangesAsync();
+        Navigation.NavigateTo("categories");
     }
 }
